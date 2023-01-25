@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, TemplateRef, ViewChild, ViewContainerRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -16,13 +16,15 @@ import { HOME_CRUMB, STORY_EDITOR_CRUMB } from '@app/elements/nav/convl/breadcru
 import { StoryEditorFrame } from '../../model/story-editor-frame.model';
 import { AddBotToChannelModal } from '../../modals/add-bot-to-channel-modal/add-bot-to-channel.modal';
 import { FormControl } from '@angular/forms';
+import { MatSidenav } from '@angular/material/sidenav';
+import { TemplatePortal } from '@angular/cdk/portal';
 
 @Component({
   selector: 'convl-story-editor-page',
   templateUrl: './story-editor.page.html',
   styleUrls: ['./story-editor.page.scss']
 })
-export class StoryEditorPageComponent implements OnDestroy
+export class StoryEditorPageComponent implements AfterViewInit ,OnDestroy
 {
   private _sb = new SubSink();
 
@@ -43,27 +45,35 @@ export class StoryEditorPageComponent implements OnDestroy
   frameElement: HTMLElement;
   frameZoom: number = 1;
   frameZoomInstance: BrowserJsPlumbInstance;
+  templatePortal: TemplatePortal<any>;
+
+  @ViewChild('sidenav') sidenav: MatSidenav;
+  @ViewChild('templatePortalOutlet') templatePortalContent: TemplateRef<unknown>;
 
   constructor(private _editorStateService: StoryEditorStateService,
               private _dialog: MatDialog,
               private _cd: ChangeDetectorRef,
+              private _viewContainerRef: ViewContainerRef,
               private _logger: Logger,
               _router: Router)
   {
     this._editorStateService.get()
-        .subscribe((state: StoryEditorState) => 
+        .subscribe((state: StoryEditorState) =>
         {
           this._logger.log(() => `Loaded editor for story ${state.story.id}. Logging state.`)
           this._logger.log(() => state);
 
           this.state = state;
           this.pageName = `Story overview :: ${ state.story.name }`;
-
           const story = state.story;
           this.breadcrumbs = [HOME_CRUMB(_router), STORY_EDITOR_CRUMB(_router, story.id, story.name, true)];
           this.loading.next(false);
         }
-    );     
+    );
+  }
+
+  ngAfterViewInit(): void {
+     this.templatePortal = new TemplatePortal(this.templatePortalContent, this._viewContainerRef);
   }
 
   onFrameViewLoaded(frame: StoryEditorFrame)
@@ -71,15 +81,15 @@ export class StoryEditorPageComponent implements OnDestroy
     this.frame = frame;
 
     // After both frame AND data are loaded (hence the subscribe), draw frame blocks on the frame.
-    this._sb.sink = 
+    this._sb.sink =
       this.loading.pipe(filter(loading => !loading))
-            .subscribe(() => 
-            {              
+            .subscribe(() =>
+            {
               this.frame.init(this.state);
               this.setFrameZoom();
             }
             );
-      
+
     this._cd.detectChanges();
   }
 
@@ -122,9 +132,9 @@ export class StoryEditorPageComponent implements OnDestroy
     // from getConnections()
     // find a jsPlumb types library to replace any with strict type
     let connections = this.frame.getJsPlumbConnections as any[];
-    
+
     this.state.connections = connections;
-  
+
     this._editorStateService.persist(this.state)
         .subscribe((success) => {
           if (success) {

@@ -3,8 +3,15 @@
   <!-- Main body page -->
   <div fxLayout="row" fxFlexFill>
     <div fxFlex="20" class="nav">
-      <convl-blocks-library *ngIf="frame" [frame]="frame">
-      </convl-blocks-library>
+      <mat-sidenav-container>
+        <mat-sidenav #sidenav mode="push">
+          <ng-template #templatePortalOutlet></ng-template>
+        </mat-sidenav>
+        <mat-sidenav-content>
+          <convl-blocks-library *ngIf="frame" [frame]="frame">
+          </convl-blocks-library>
+        </mat-sidenav-content>
+      </mat-sidenav-container>
     </div>
 
     <div fxLayout="column" fxLayoutAlign="start" fxFlex>
@@ -32,14 +39,14 @@
               </span>
             </ng-template>
           </button>
-  
+
           <button [disabled]="!storyHasBeenSaved" (click)="addToChannel()" mat-flat-button class="add-channel-btn">
             <span> {{'PAGE-CONTENT.TOP-BAR.PUBLISH-STORY' | transloco }} </span>
           </button>
         </div>
       </div>
 
-      <convl-story-editor-frame (frameLoaded)="onFrameViewLoaded($event)" fxFlex="90">
+      <convl-story-editor-frame (click)="sidenav.open()" (frameLoaded)="onFrameViewLoaded($event)"  fxFlex="90">
       </convl-story-editor-frame>
     </div>
 
