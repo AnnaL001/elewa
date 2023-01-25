@@ -5,9 +5,10 @@
                 <i [class]="iconClass"></i>
                 <h4 class="block-title"> {{ blockTitle | transloco }}</h4>
             </div>
-        
+
             <div fxLayout="row" class="icon-block">
                 <span class="icons"><i class="far fa-clone"></i></span>
+                <span id="blockEdit" class="icons"><i class="fas fa-pencil-alt"></i></span>
                 <span (click)="deleteBlock()" class="icons"><i class="far fa-trash-alt"></i></span>
             </div>
         </div>
