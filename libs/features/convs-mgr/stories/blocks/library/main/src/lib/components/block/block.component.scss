@@ -43,16 +43,19 @@
 	cursor: pointer;
 }
 
-.fa-clone {
+.fa-clone,
+.fa-pencil-alt {
 	padding-right: 10px;
 }
 
 .fa-clone,
+.fa-pencil-alt,
 .fa-trash-alt {
 	color: var(--convs-mgr-color-medium-shade);
 }
 
 .fa-clone:hover,
+.fa-pencil-alt:hover,
 .fa-trash-alt:hover {
 	color: var(--convs-mgr-color-primary-purple);
 }
